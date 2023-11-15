@@ -38,10 +38,28 @@ async function makeRequest(){
   const request = await fetch(giphyUrl+params);
   const responseObj = await request.json();
   console.log('fetch response: ',responseObj);
+  return responseObj;
+}
+
+/** Renders a gif onto browser from response object */
+function getGifLink(responseObj) {
+  console.log('mkRequestResponseObj:', responseObj);
+  const responseData = responseObj.data;
+  console.log('responseData: ', responseData);
+  const responseDataUrl = responseData[0].url;
+  console.log('responseDataUrl: ', responseDataUrl);
+  return responseDataUrl;
+}
+
+function renderGif(link) {
+  console.log('datatypeLink: ', typeof link);
+  const funThings = document.getElementById('fun-things');
+  const $gif = $(`<img src=${link}>`).appendTo(funThings);
 }
 
 /** Calls async function to make fetch request */
 async function handleForm(evt){
   evt.preventDefault();
-  makeRequest();
+  const gifLink = getGifLink(await makeRequest());
+  renderGif(gifLink);
 }
