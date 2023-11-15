@@ -22,6 +22,9 @@ console.log("Let's get this party started!");
 const $form = $('form');
 $form.on('submit',handleForm);
 
+const $removeButton = $('#remove');
+$removeButton.on('click', cleanGifs);
+
 /** Makes the fetch request, appends form input and giphy api key */
 async function makeRequest(){
   const giphyUrl = 'http://api.giphy.com/v1/gifs/search?'
@@ -29,13 +32,15 @@ async function makeRequest(){
   const params = new URLSearchParams(
     {
       q:input,
-      api_key: 'MhAodEJIJxQMxW9XqxKjyXfNYdLoOIym'
+      api_key: 'MhAodEJIJxQMxW9XqxKjyXfNYdLoOIym' //TODO:global const
     });
 
     // http://api.giphy.com/v1/gifs/search?
     // q=hilarious&api_key=MhAodEJIJxQMxW9XqxKjyXfNYdLoOIym
 
+    //this is actually the fetchResponse (response not request)
   const request = await fetch(giphyUrl+params);
+
   const responseObj = await request.json();
   console.log('fetch response: ',responseObj);
   return responseObj;
@@ -44,22 +49,44 @@ async function makeRequest(){
 /** Renders a gif onto browser from response object */
 function getGifLink(responseObj) {
   console.log('mkRequestResponseObj:', responseObj);
+
   const responseData = responseObj.data;
   console.log('responseData: ', responseData);
-  const responseDataUrl = responseData[0].url;
+
+  const randomImageIndex =
+    Math.floor(Math.random()*responseData.length);
+ // const responseDataUrl = responseData[randomImageIndex].embed_url;
+  const responseDataUrl = responseData[randomImageIndex]
+    .images.original.url;
   console.log('responseDataUrl: ', responseDataUrl);
+
   return responseDataUrl;
 }
 
+/** Renders gif based on link embed URL */
 function renderGif(link) {
   console.log('datatypeLink: ', typeof link);
-  const funThings = document.getElementById('fun-things');
-  const $gif = $(`<img src=${link}>`).appendTo(funThings);
+  const $memes = $('#memes');
+  // const $gif = $(`<img src=${link}>`).appendTo(funThings);
+  console.log($memes);
+  //const $embed = $(`<iframe src=${link}>`);
+  const $embed = $(`<img src=${link}>`);
+  $embed.appendTo($memes);
+}
+
+/** clears out all Gifs */
+function cleanGifs(evt){
+  //evt.preventDefault();
+  $('#memes').empty();
 }
 
 /** Calls async function to make fetch request */
 async function handleForm(evt){
   evt.preventDefault();
-  const gifLink = getGifLink(await makeRequest());
+  //the right way
+  const responseObj = await makeRequest();
+  //const thebadway = getGifLink(await makeRequest())
+  const gifLink = getGifLink(responseObj);
   renderGif(gifLink);
 }
+
